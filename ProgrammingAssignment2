@@ -1,0 +1,82 @@
+## Creates a special matrix object that can cache its inverse
+makeCacheMatrix <- function( j = matrix()) {
+    
+    inverse <- NULL
+    
+    set <- function(k) {
+        j <<- k
+        inverse <<- NULL
+    }
+    
+    get <- function() j 
+    
+    
+    setInverse <- function(inv) {
+        inverse <<- inv
+    }
+    
+    getInverse <- function() {
+        
+        inverse
+    }
+    
+    
+    list(set = set, get = get,
+         setInverse = setInverse,
+         getInverse = getInverse)
+}
+
+
+## Compute the inverse of the special matrix returned by "makeCacheMatrix"
+## If inverse has been calculated and the matrix has not
+## changed, then the "cachesolve" should retrieve the inverse from the cache.
+cacheSolve <- function(x, ...) {
+    
+    ##Returns a matrix that is the inverse of x
+    inv <- x$getInverse()
+    
+    if( !is.null(inv) ) {
+        message("getting cached data")
+        return(inv)
+    }
+    
+    data <- x$get()
+    
+    inv <- solve(data, ...)
+    
+    x$setInverse(inv)
+    
+}
+
+TESTING FUNCTIONS
+
+> my_matrix <- makeCacheMatrix(matrix(134:137, 2, 2))
+> my_matrix$get()
+     [,1] [,2]
+[1,]  134  136
+[2,]  135  137
+> my_matrix$getInverse()
+NULL
+> cacheSolve(my_matrix)
+> cacheSolve(my_matrix)
+getting cached data
+      [,1] [,2]
+[1,] -68.5   68
+[2,]  67.5  -67
+> my_matrix$getInverse()
+      [,1] [,2]
+[1,] -68.5   68
+[2,]  67.5  -67
+> my_matrix$set(matrix(c(6, 6, 2, 8), 2, 2))
+> my_matrix$getInverse()
+NULL
+> cacheSolve(my_matrix)
+> cacheSolve(my_matrix)
+getting cached data
+           [,1]        [,2]
+[1,]  0.2222222 -0.05555556
+[2,] -0.1666667  0.16666667
+> my_matrix$getInverse()
+           [,1]        [,2]
+[1,]  0.2222222 -0.05555556
+[2,] -0.1666667  0.16666667
